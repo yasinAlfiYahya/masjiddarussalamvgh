@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Masjid Jami Darussalam – Villa Gading Harapan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:wght@600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<style>
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-behavior:smooth;scroll-padding-top:90px;background:#fafaf9}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#fafaf9;color:#1c1917;margin:0}
+.serif{font-family:'Fraunces',Georgia,serif}.ar{font-family:'Amiri',serif}
+.pat{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cg fill='none' stroke='%23fff' stroke-width='1'%3E%3Cpath d='M30 4l8 14 16-2-8 14 8 14-16-2-8 14-8-14-16 2 8-14-8-14 16 2z'/%3E%3Ccircle cx='30' cy='30' r='8'/%3E%3C/g%3E%3C/svg%3E");background-size:60px;}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.rise{animation:rise .5s ease both}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.pop{animation:pop .2s ease both}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const {useState,useEffect,useMemo,useRef}=React;
+const html=htm.bind(React.createElement);
+const P={pin:'M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0116 0zM12 7a3 3 0 100 6 3 3 0 000-6',up:'M7 17L17 7M7 7h10v10',down:'M17 7L7 17M17 17H7V7',plus:'M12 5v14M5 12h14',x:'M18 6L6 18M6 6l12 12',search:'M21 21l-4.3-4.3M11 18a7 7 0 100-14 7 7 0 000 14',copy:'M9 9h11v11H9zM5 15V5h10',clock:'M12 7v5l3 2M12 3a9 9 0 100 18 9 9 0 000-18',sun:'M12 8a4 4 0 100 8 4 4 0 000-8M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4',moon:'M21 13A9 9 0 1111 3a7 7 0 0010 10z',sunrise:'M12 2v6M8 6l4-4 4 4M2 18h2M20 18h2M5 11l1.4 1.4M19 11l-1.4 1.4M7 18a5 5 0 0110 0M2 22h20',sunset:'M12 10V2M8 6l4 4 4-4M2 18h2M20 18h2M5 11l1.4 1.4M19 11l-1.4 1.4M7 18a5 5 0 0110 0M2 22h20',menu:'M4 6h16M4 12h16M4 18h16',book:'M4 19a2 2 0 012-2h14V3H6a2 2 0 00-2 2zM4 19a2 2 0 002 2h14v-4',heart:'M12 21s-8-5-8-11a4.5 4.5 0 018-2.8A4.5 4.5 0 0120 10c0 6-8 11-8 11z',amb:'M3 16V8h11v8M14 11h4l3 3v2h-3M6 12h4M8 10v4M7 19a2 2 0 100-4 2 2 0 000 4M17 19a2 2 0 100-4 2 2 0 000 4',users:'M16 20v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 10a4 4 0 100-8 4 4 0 000 8M22 20v-2a4 4 0 00-3-3.9M16 2.1a4 4 0 010 7.8',wallet:'M3 7h16a2 2 0 012 2v10H5a2 2 0 01-2-2zM3 7l3-3h13M16 14h2',cal:'M8 2v4M16 2v4M3 8h18M5 4h14a2 2 0 012 2v14H3V6a2 2 0 012-2',check:'M5 12l5 5L20 7',phone:'M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2',bldg:'M4 21V7l8-4 8 4v14M9 21v-6h6v6'};
+const Ic=({n,s=20,c=''})=>html`<svg width=${s} height=${s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className=${c}><path d=${P[n]}/></svg>`;
+const rp=n=>'Rp '+Math.abs(Math.round(n)).toLocaleString('id-ID');
+const FALL={Imsak:'04:22',Subuh:'04:32',Terbit:'05:48',Dzuhur:'11:56',Ashar:'15:16',Maghrib:'17:58',Isya:'19:09'};
+const ICONS={Imsak:'moon',Subuh:'sunrise',Terbit:'sun',Dzuhur:'sun',Ashar:'sun',Maghrib:'sunset',Isya:'moon'};
+const wib=()=>new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Jakarta'}));
+const mins=t=>{const[a,b]=t.split(':');return +a*60+ +b};
+const pad=n=>String(n).padStart(2,'0');
+
+const SEED=[
+{id:1,d:'2026-11-20',t:'in',c:'Infaq Jumat',n:'Kotak infaq Jumat',a:6450000},
+{id:2,d:'2026-11-19',t:'out',c:'Listrik & Air',n:'Tagihan PLN & PDAM Oktober',a:2150000},
+{id:3,d:'2026-11-17',t:'in',c:'Pembangunan',n:'Donasi renovasi serambi',a:12500000},
+{id:4,d:'2026-11-15',t:'out',c:'Santunan',n:'Santunan 25 anak yatim',a:5000000},
+{id:5,d:'2026-11-13',t:'in',c:'Infaq Jumat',n:'Kotak infaq Jumat',a:5980000},
+{id:6,d:'2026-11-10',t:'out',c:'Operasional',n:'Kebersihan & perlengkapan',a:1350000},
+{id:7,d:'2026-11-08',t:'out',c:'Pembangunan',n:'Material keramik serambi',a:7800000},
+{id:8,d:'2026-11-06',t:'in',c:'Infaq Jumat',n:'Kotak infaq Jumat',a:6120000},
+{id:9,d:'2026-11-03',t:'in',c:'Santunan',n:'Donasi santunan dhuafa',a:3000000}];
+const HIST=[['Jun',24.5,17.2],['Jul',27.1,19.8],['Agu',25.9,21.4],['Sep',29.3,20.1],['Okt',31.2,23.6]];
+const CAT={'Infaq Jumat':'bg-emerald-50 text-emerald-700','Operasional':'bg-sky-50 text-sky-700','Listrik & Air':'bg-amber-50 text-amber-700','Pembangunan':'bg-violet-50 text-violet-700','Santunan':'bg-rose-50 text-rose-700'};
+const KAJ=[
+{id:1,k:'Fiqih',t:'Fiqih Muamalah Kontemporer',u:'Ustadz Ahmad Fauzan, Lc.',day:'Sabtu',dt:'28',mo:'Nov',time:'Ba\u2019da Maghrib',loc:'Ruang Utama',s:'Rutin Mingguan',g:'from-emerald-700 to-emerald-900',d:'Membahas hukum jual beli, utang piutang, dan transaksi digital dalam kehidupan sehari-hari.'},
+{id:2,k:'Akidah',t:'Syarah Kitab Tauhid',u:'Ustadz Muhammad Ridwan, M.A.',day:'Ahad',dt:'29',mo:'Nov',time:'Ba\u2019da Subuh',loc:'Ruang Utama',s:'Mendatang',g:'from-teal-700 to-teal-900',d:'Kajian kitab tauhid untuk memperkuat pondasi akidah jamaah, dilengkapi sesi tanya jawab.'},
+{id:3,k:'Keluarga',t:'Parenting Islami: Mendidik Anak Zaman Digital',u:'Ustadzah Siti Nurhaliza, S.Psi.',day:'Ahad',dt:'29',mo:'Nov',time:'09.00 WIB',loc:'Aula Masjid',s:'Mendatang',g:'from-amber-600 to-amber-800',d:'Tips praktis menanamkan adab dan nilai Islam pada anak di tengah era gawai. Terbuka untuk ayah dan bunda.'},
+{id:4,k:'Fiqih',t:'Fiqih Sholat Lengkap',u:'Ustadz Hasan Basri, Lc.',day:'Rabu',dt:'02',mo:'Des',time:'Ba\u2019da Isya',loc:'Ruang Utama',s:'Rutin Mingguan',g:'from-emerald-700 to-emerald-900',d:'Panduan sholat dari thaharah hingga salam sesuai tuntunan, cocok untuk pemula maupun yang ingin menyegarkan ilmu.'},
+{id:5,k:'Muamalah',t:'Zakat, Infaq & Kelola Harta Keluarga',u:'Ustadz Ahmad Fauzan, Lc.',day:'Sabtu',dt:'05',mo:'Des',time:'Ba\u2019da Maghrib',loc:'Aula Masjid',s:'Mendatang',g:'from-sky-700 to-sky-900',d:'Memahami nisab, haul, dan cara menghitung zakat penghasilan serta pengelolaan keuangan keluarga yang berkah.'},
+{id:6,k:'Akidah',t:'Mengenal Asmaul Husna',u:'Ustadz Muhammad Ridwan, M.A.',day:'Kamis',dt:'03',mo:'Des',time:'Ba\u2019da Maghrib',loc:'Ruang Utama',s:'Rutin Mingguan',g:'from-teal-700 to-teal-900',d:'Mengenal nama-nama indah Allah dan cara meneladaninya dalam akhlak sehari-hari.'}];
+const PROG=[
+{id:1,t:'TPA/TPQ Anak',i:'book',c:'bg-emerald-100 text-emerald-700',d:'Belajar mengaji dan akhlak untuk anak usia 5\u201312 tahun bersama pengajar bersertifikat.',st:'120+ Santri Aktif',j:'Senin\u2013Jumat, 15.30\u201317.00',span:'md:col-span-2'},
+{id:2,t:'Jumat Berkah',i:'heart',c:'bg-amber-100 text-amber-700',d:'Berbagi nasi kotak untuk jamaah dan warga sekitar setiap Jumat.',st:'300 porsi / pekan',j:'Setiap Jumat',span:''},
+{id:3,t:'Santunan Yatim & Dhuafa',i:'users',c:'bg-rose-100 text-rose-700',d:'Santunan bulanan dan beasiswa pendidikan bagi anak yatim dan keluarga dhuafa.',prog:[18.5,25],st:'Target Desember',span:''},
+{id:4,t:'Ambulans & Layanan Jenazah',i:'amb',c:'bg-sky-100 text-sky-700',d:'Layanan gratis untuk warga: ambulans, pemandian, pengkafanan, dan sholat jenazah.',st:'Siaga 24 jam',j:'Hubungi pengurus DKM',span:''},
+{id:5,t:'ZISWAF & Pembangunan',i:'bldg',c:'bg-violet-100 text-violet-700',d:'Zakat, infaq, sedekah, dan wakaf untuk pembangunan serambi dan perluasan area sholat.',prog:[112,200],st:'Renovasi Serambi',span:'md:col-span-2'}];
+
+function useToast(){const[t,s]=useState(null);const show=m=>{s(m);clearTimeout(window.__t);window.__t=setTimeout(()=>s(null),2600)};return[t,show]}
+function Modal({onClose,children,w='max-w-lg'}){
+ return html`<div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4" onClick=${onClose}>
+ <div className="absolute inset-0 bg-emerald-950/60 backdrop-blur-sm"></div>
+ <div className=${'pop relative w-full '+w+' max-h-[92vh] overflow-y-auto bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl p-6'} onClick=${e=>e.stopPropagation()}>
+ <button onClick=${onClose} aria-label="Tutup" className="absolute top-4 right-4 p-2 rounded-full bg-stone-100 hover:bg-stone-200 transition"><${Ic} n="x" s=${16}/></button>${children}</div></div>`}
+const Head=({k,t,d})=>html`<div className="mb-8 md:mb-10"><div className="text-xs font-bold tracking-[.2em] uppercase text-amber-600">${k}</div><h2 className="serif text-3xl md:text-4xl text-emerald-900 mt-2">${t}</h2>${d&&html`<p className="text-stone-500 mt-2 max-w-2xl">${d}</p>`}</div>`;
+
+function App(){
+ const[times,setTimes]=useState(FALL);const[online,setOnline]=useState(false);
+ const[now,setNow]=useState(wib());
+ const[tx,setTx]=useState(()=>{try{const v=localStorage.getItem('mjd-tx');return v?JSON.parse(v):SEED}catch(e){return SEED}});
+ const[toast,show]=useToast();const[menu,setMenu]=useState(false);const[active,setActive]=useState('beranda');
+ const[modal,setModal]=useState(null);
+ useEffect(()=>{const i=setInterval(()=>setNow(wib()),1000);return()=>clearInterval(i)},[]);
+ useEffect(()=>{fetch('https://api.aladhan.com/v1/timingsByCity?city=Jakarta&country=Indonesia&method=20').then(r=>r.json()).then(j=>{const t=j.data.timings;const c=x=>x.slice(0,5);setTimes({Imsak:c(t.Imsak),Subuh:c(t.Fajr),Terbit:c(t.Sunrise),Dzuhur:c(t.Dhuhr),Ashar:c(t.Asr),Maghrib:c(t.Maghrib),Isya:c(t.Isha)});setOnline(true)}).catch(()=>{})},[]);
+ useEffect(()=>{try{localStorage.setItem('mjd-tx',JSON.stringify(tx))}catch(e){}},[tx]);
+ useEffect(()=>{const f=()=>{const ids=['beranda','jadwal','keuangan','kajian','program'];let cur='beranda';ids.forEach(i=>{const e=document.getElementById(i);if(e&&e.getBoundingClientRect().top<140)cur=i});setActive(cur)};window.addEventListener('scroll',f);return()=>window.removeEventListener('scroll',f)},[]);
+
+ const names=Object.keys(times);const sec=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
+ let ni=names.findIndex(n=>mins(times[n])*60>sec);let tomorrow=false;if(ni<0){ni=0;tomorrow=true}
+ const next=names[ni];const nextSec=mins(times[next])*60+(tomorrow?86400:0);
+ const prevSec=ni===0?(mins(times[names[6]])*60-86400):mins(times[names[ni-1]])*60;
+ const diff=nextSec-sec;const pct=Math.min(100,Math.max(0,((sec-prevSec)/(nextSec-prevSec))*100));
+ const cd=`${pad(Math.floor(diff/3600))}:${pad(Math.floor(diff%3600/60))}:${pad(diff%60)}`;
+ const hijri=new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura',{day:'numeric',month:'long',year:'numeric'}).format(now);
+ const masehi=now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+ const saldo=48500000+tx.reduce((s,x)=>s+(x.t==='in'?x.a:-x.a),0);
+ const mon=tx.filter(x=>x.d.startsWith('2026-11'));
+ const inM=mon.filter(x=>x.t==='in').reduce((s,x)=>s+x.a,0),outM=mon.filter(x=>x.t==='out').reduce((s,x)=>s+x.a,0);
+ const nk=KAJ.find(k=>k.s==='Mendatang');
+ const go=id=>{setMenu(false);document.getElementById(id).scrollIntoView({behavior:'smooth'})};
+ const nav=[['beranda','Beranda'],['jadwal','Jadwal Sholat'],['keuangan','Keuangan'],['kajian','Kajian'],['program','Program']];
+
+ return html`<div>
+ <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-stone-200/60" style=${{paddingTop:'env(safe-area-inset-top,0px)'}}>
+  <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+   <button onClick=${()=>go('beranda')} className="flex items-center gap-2.5"><span className="w-9 h-9 rounded-xl bg-emerald-800 text-amber-400 grid place-items-center ar text-xl">\u0645</span><span className="serif text-emerald-900 text-lg leading-none text-left">Darussalam<span className="block text-[10px] font-sans tracking-widest text-stone-500 font-semibold">MASJID JAMI</span></span></button>
+   <nav className="hidden md:flex gap-1">${nav.map(([id,l])=>html`<button key=${id} onClick=${()=>go(id)} className=${'relative px-4 py-2 text-sm font-semibold rounded-full transition '+(active===id?'text-emerald-800 bg-emerald-50':'text-stone-500 hover:text-emerald-800')}>${l}${active===id&&html`<span className="absolute left-1/2 -translate-x-1/2 bottom-0.5 w-4 h-0.5 rounded bg-amber-500"></span>`}</button>`)}</nav>
+   <button className="md:hidden p-2 rounded-xl hover:bg-stone-100" onClick=${()=>setMenu(true)} aria-label="Menu"><${Ic} n="menu"/></button>
+  </div></header>
+ ${menu&&html`<div className="fixed inset-0 z-[70] md:hidden" onClick=${()=>setMenu(false)}><div className="absolute inset-0 bg-emerald-950/60 backdrop-blur-sm"></div>
+  <div className="pop absolute right-0 top-0 bottom-0 w-72 bg-white p-6 shadow-2xl" onClick=${e=>e.stopPropagation()}>
+  <div className="flex justify-between items-center mb-6"><span className="serif text-emerald-900 text-lg">Menu</span><button onClick=${()=>setMenu(false)}><${Ic} n="x"/></button></div>
+  ${nav.map(([id,l])=>html`<button key=${id} onClick=${()=>go(id)} className=${'block w-full text-left px-4 py-3 rounded-xl font-semibold mb-1 '+(active===id?'bg-emerald-50 text-emerald-800':'text-stone-600')}>${l}</button>`)}</div></div>`}
+
+ <section id="beranda" className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-900 text-white">
+  <div className="absolute inset-0 pat opacity-[.05]"></div>
+  <div className="absolute -top-32 -right-24 w-[34rem] h-[34rem] rounded-full bg-amber-400/20 blur-3xl"></div>
+  <div className="absolute bottom-0 -left-24 w-96 h-96 rounded-full bg-emerald-400/20 blur-3xl"></div>
+  <div className="relative max-w-6xl mx-auto px-4 pt-16 md:pt-24 pb-40 md:pb-44 text-center rise">
+   <div className="ar text-3xl md:text-4xl text-amber-300">\u0627\u0644\u0633\u0644\u0627\u0645 \u0639\u0644\u064a\u0643\u0645 \u0648\u0631\u062d\u0645\u0629 \u0627\u0644\u0644\u0647 \u0648\u0628\u0631\u0643\u0627\u062a\u0647</div>
+   <p className="text-emerald-100/80 mt-2 text-sm">Selamat datang di rumah Allah yang teduh dan penuh berkah</p>
+   <h1 className="serif text-4xl sm:text-6xl md:text-7xl mt-6 leading-tight">Masjid Jami Darussalam</h1>
+   <div className="inline-flex items-center gap-2 mt-6 px-4 py-2 rounded-full bg-white/10 backdrop-blur border border-white/20 text-sm"><${Ic} n="pin" s=${16} c="text-amber-300"/>Villa Gading Harapan</div>
+   <div className="flex flex-wrap gap-3 justify-center mt-9">
+    <button onClick=${()=>go('jadwal')} className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 text-emerald-950 font-bold shadow-lg shadow-amber-500/20 hover:-translate-y-0.5 hover:shadow-xl transition">Lihat Jadwal Sholat</button>
+    <button onClick=${()=>go('keuangan')} className="px-6 py-3.5 rounded-2xl bg-white/5 border border-white/30 backdrop-blur font-semibold hover:bg-white/15 hover:-translate-y-0.5 transition">Transparansi Keuangan</button></div>
+  </div></section>
+
+ <div className="relative z-10 max-w-6xl mx-auto px-4 -mt-28 md:-mt-32">
+  <div className="grid md:grid-cols-3 gap-3 p-3 rounded-3xl bg-white/70 backdrop-blur-xl border border-white shadow-2xl shadow-emerald-900/10">
+   ${[['clock','Sholat Berikutnya',next+' \u00b7 '+times[next],cd+' lagi'],['wallet','Saldo Kas Masjid',rp(saldo),'Diperbarui real-time'],['cal','Kajian Terdekat',nk.t,nk.day+', '+nk.dt+' '+nk.mo+' \u00b7 '+nk.time]].map(([i,l,v,s])=>html`<div key=${l} className="flex gap-4 items-center p-4 rounded-2xl bg-white/80 hover:shadow-lg transition"><div className="w-12 h-12 shrink-0 rounded-2xl bg-emerald-100 text-emerald-700 grid place-items-center"><${Ic} n=${i}/></div><div className="min-w-0"><div className="text-xs text-stone-500 font-semibold">${l}</div><div className="font-bold text-emerald-900 truncate">${v}</div><div className="text-xs text-amber-600 font-semibold truncate">${s}</div></div></div>`)}
+  </div></div>
+
+ <section id="jadwal" className="max-w-6xl mx-auto px-4 pt-20 md:pt-28">
+  <${Head} k="Jadwal Sholat" t="Waktu Sholat Hari Ini" d=${'Wilayah Jakarta (WIB). '+(online?'Data langsung dari Aladhan API.':'Menampilkan data jadwal cadangan.')}/>
+  <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-900 to-emerald-800 text-white p-6 md:p-10 shadow-xl">
+   <div className="absolute inset-0 pat opacity-[.06]"></div>
+   <div className="relative grid md:grid-cols-2 gap-8 items-center">
+    <div><div className="text-emerald-200 text-sm font-medium">${masehi}</div><div className="text-amber-300 text-sm">${hijri} H</div>
+     <div className="serif text-6xl md:text-7xl mt-3 tabular-nums">${pad(now.getHours())}:${pad(now.getMinutes())}<span className="text-3xl text-emerald-300">:${pad(now.getSeconds())}</span></div><div className="text-xs tracking-widest text-emerald-300 mt-1">WAKTU INDONESIA BARAT</div></div>
+    <div className="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/15">
+     <div className="text-sm text-emerald-100">Menuju ${next}${tomorrow?' (besok)':''}</div>
+     <div className="text-4xl font-bold tabular-nums text-amber-300 mt-1">${cd}</div>
+     <div className="h-2 rounded-full bg-white/15 mt-4 overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-emerald-300 to-amber-400 transition-all duration-1000" style=${{width:pct+'%'}}></div></div>
+     <div className="text-xs text-emerald-200 mt-2">${Math.round(pct)}% menuju waktu ${next} (${times[next]})</div></div></div></div>
+  <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mt-5">
+   ${names.map(n=>{const on=n===next;return html`<div key=${n} className=${'relative text-center rounded-2xl p-4 transition hover:-translate-y-1 '+(on?'bg-gradient-to-br from-emerald-700 to-emerald-900 text-white ring-2 ring-amber-400 shadow-xl shadow-amber-500/20':'bg-white border border-stone-200 shadow-sm hover:shadow-lg')}>
+    ${on&&html`<span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-amber-400 text-emerald-950 text-[10px] font-extrabold">Berikutnya</span>`}
+    <div className=${'mx-auto w-10 h-10 rounded-xl grid place-items-center '+(on?'bg-white/15 text-amber-300':'bg-amber-50 text-amber-600')}><${Ic} n=${ICONS[n]}/></div>
+    <div className=${'text-xs font-semibold mt-2 '+(on?'text-emerald-100':'text-stone-500')}>${n}</div><div className="text-xl font-bold tabular-nums">${times[n]}</div></div>`})}
+  </div></section>
+
+ <${Finance} tx=${tx} setTx=${setTx} saldo=${saldo} inM=${inM} outM=${outM} show=${show}/>
+ <${Kajian} setModal=${setModal} show=${show}/>
+ <${Programs} setModal=${setModal}/>
+
+ <footer className="mt-24 relative bg-emerald-950 text-emerald-100 overflow-hidden"><div className="absolute inset-0 pat opacity-[.04]"></div>
+  <div className="relative max-w-6xl mx-auto px-4 py-14 grid md:grid-cols-3 gap-10">
+   <div><div className="serif text-2xl text-white">Masjid Jami Darussalam</div><p className="text-sm mt-3 text-emerald-200/80 leading-relaxed">Pusat ibadah, ilmu, dan kepedulian sosial warga Villa Gading Harapan. Dikelola secara amanah dan transparan oleh pengurus DKM.</p></div>
+   <div><div className="text-amber-400 font-bold text-sm mb-3">Hubungi Kami</div><div className="text-sm space-y-2 text-emerald-200/80"><div className="flex gap-2"><${Ic} n="pin" s=${16}/>Villa Gading Harapan, Bekasi</div><div className="flex gap-2"><${Ic} n="phone" s=${16}/>Sekretariat DKM: 0812-3456-7890</div><div className="flex gap-2"><${Ic} n="clock" s=${16}/>Sekretariat buka ba\u2019da Ashar\u2013Isya</div></div></div>
+   <div><div className="text-amber-400 font-bold text-sm mb-3">Tautan Cepat</div><div className="grid grid-cols-2 gap-1 text-sm">${nav.map(([id,l])=>html`<button key=${id} onClick=${()=>go(id)} className="text-left py-1 hover:text-amber-300 transition">${l}</button>`)}</div></div></div>
+  <div className="relative border-t border-white/10 py-5 text-center text-xs text-emerald-300/70">\u00a9 2026 DKM Masjid Jami Darussalam \u00b7 Data pada situs ini adalah simulasi demonstrasi</div>
+  <button onClick=${()=>window.scrollTo({top:0,behavior:'smooth'})} aria-label="Ke atas" className="absolute right-5 top-5 w-11 h-11 rounded-full bg-amber-400 text-emerald-950 grid place-items-center hover:-translate-y-1 transition shadow-lg"><${Ic} n="up" s=${20}/></button></footer>
+
+ ${modal&&modal.type==='kajian'&&html`<${Modal} onClose=${()=>setModal(null)}><div className=${'-mx-6 -mt-6 mb-5 p-6 pt-8 rounded-t-3xl text-white bg-gradient-to-br '+modal.k.g}><div className="text-xs font-bold tracking-widest opacity-80">${modal.k.k.toUpperCase()}</div><h3 className="serif text-2xl mt-1 pr-8">${modal.k.t}</h3></div>
+  <p className="text-stone-600 leading-relaxed">${modal.k.d}</p>
+  <div className="mt-5 space-y-2 text-sm">${[['users',modal.k.u],['cal',modal.k.day+', '+modal.k.dt+' '+modal.k.mo+' 2026'],['clock',modal.k.time],['pin',modal.k.loc+' \u2013 Masjid Jami Darussalam']].map(([i,v])=>html`<div key=${v} className="flex gap-3 items-center"><span className="text-emerald-700"><${Ic} n=${i} s=${18}/></span>${v}</div>`)}</div>
+  <button onClick=${()=>{setModal(null);show('Pengingat diaktifkan untuk '+modal.k.t)}} className="mt-6 w-full py-3.5 rounded-2xl bg-emerald-800 text-white font-bold hover:bg-emerald-900 transition">Ingatkan Saya</button><//>`}
+ ${modal&&modal.type==='infaq'&&html`<${Infaq} p=${modal.p} close=${()=>setModal(null)} show=${show}/>`}
+ ${toast&&html`<div className="pop fixed z-[80] bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-5 py-3 rounded-2xl bg-emerald-900 text-white shadow-2xl text-sm font-semibold" style=${{marginBottom:'env(safe-area-inset-bottom,0px)'}}><span className="text-amber-400"><${Ic} n="check" s=${18}/></span>${toast}</div>`}
+ </div>`}
+
+function Finance({tx,setTx,saldo,inM,outM,show}){
+ const[q,setQ]=useState('');const[f,setF]=useState('all');const[open,setOpen]=useState(false);const[hv,setHv]=useState(null);
+ const[form,setForm]=useState({t:'in',c:'Infaq Jumat',n:'',a:''});
+ const rows=useMemo(()=>[...tx].sort((a,b)=>b.d.localeCompare(a.d)||b.id-a.id).filter(x=>(f==='all'||x.t===f)&&(x.n+x.c).toLowerCase().includes(q.toLowerCase())),[tx,q,f]);
+ const data=[...HIST,['Nov',inM/1e6,outM/1e6]];const max=Math.max(...data.flatMap(d=>[d[1],d[2]]))*1.15;
+ const submit=()=>{const a=parseInt(String(form.a).replace(/\D/g,''));if(!a||!form.n.trim())return show('Lengkapi keterangan dan nominal');
+  setTx([...tx,{id:Date.now(),d:new Date().toISOString().slice(0,10),t:form.t,c:form.c,n:form.n.trim(),a}]);setOpen(false);setForm({t:'in',c:'Infaq Jumat',n:'',a:''});show('Transaksi berhasil ditambahkan')};
+ const cards=[['Pemasukan Bulan Ini',inM,'up','bg-emerald-100 text-emerald-700','text-emerald-700'],['Pengeluaran Bulan Ini',outM,'down','bg-rose-100 text-rose-600','text-rose-600']];
+ const inp='w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm';
+ return html`<section id="keuangan" className="max-w-6xl mx-auto px-4 pt-20 md:pt-28">
+ <div className="flex flex-wrap items-end justify-between gap-4"><${Head} k="Transparansi Keuangan" t="Laporan Kas Masjid" d="Setiap rupiah amanah jamaah kami catat secara terbuka."/>
+  <button onClick=${()=>setOpen(true)} className="mb-8 md:mb-10 flex items-center gap-2 px-5 py-3 rounded-2xl bg-emerald-800 text-white font-semibold hover:bg-emerald-900 hover:-translate-y-0.5 transition shadow-lg"><${Ic} n="plus" s=${18}/>Simulasi Input Admin</button></div>
+ <div className="grid md:grid-cols-5 gap-4">
+  <div className="md:col-span-3 relative overflow-hidden rounded-3xl p-7 bg-gradient-to-br from-emerald-800 to-emerald-950 text-white shadow-xl"><div className="absolute inset-0 pat opacity-[.06]"></div><div className="absolute -right-10 -bottom-10 w-48 h-48 rounded-full bg-amber-400/20 blur-2xl"></div>
+   <div className="relative"><div className="text-emerald-200 text-sm flex items-center gap-2"><${Ic} n="wallet" s=${18}/>Total Saldo Kas</div><div className="serif text-4xl md:text-5xl mt-3">${rp(saldo)}</div><div className="mt-4 inline-block text-xs px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 font-semibold">Update langsung saat transaksi dicatat</div></div></div>
+  <div className="md:col-span-2 grid gap-4">${cards.map(([l,v,i,b,t])=>html`<div key=${l} className="flex items-center gap-4 p-5 rounded-3xl bg-white border border-stone-200 shadow-sm hover:shadow-lg transition"><div className=${'w-12 h-12 rounded-2xl grid place-items-center '+b}><${Ic} n=${i}/></div><div><div className="text-xs text-stone-500 font-semibold">${l}</div><div className=${'text-xl font-bold '+t}>${rp(v)}</div></div></div>`)}</div></div>
+
+ <div className="mt-4 rounded-3xl bg-white border border-stone-200 shadow-sm p-5 md:p-7">
+  <div className="flex flex-wrap justify-between items-center gap-2 mb-4"><div className="font-bold text-emerald-900">Pemasukan vs Pengeluaran (juta Rp)</div><div className="flex gap-4 text-xs font-semibold"><span className="flex items-center gap-1.5"><i className="w-3 h-3 rounded bg-emerald-600"></i>Pemasukan</span><span className="flex items-center gap-1.5"><i className="w-3 h-3 rounded bg-amber-500"></i>Pengeluaran</span></div></div>
+  <div className="relative"><svg viewBox="0 0 600 240" className="w-full" onMouseLeave=${()=>setHv(null)}>
+   ${[0,1,2,3].map(i=>html`<g key=${i}><line x1="30" x2="600" y1=${20+i*60} y2=${20+i*60} stroke="#e7e5e4" strokeDasharray="4 4"/><text x="0" y=${24+i*60} fontSize="10" fill="#a8a29e">${Math.round(max*(1-i/3))}</text></g>`)}
+   ${data.map((d,i)=>{const x=50+i*93;const h1=d[1]/max*180,h2=d[2]/max*180;return html`<g key=${d[0]} onMouseEnter=${()=>setHv(i)} onClick=${()=>setHv(i)}><rect x=${x-6} y="10" width="76" height="220" fill=${hv===i?'#ecfdf5':'transparent'} rx="10"/>
+    <rect x=${x} y=${200-h1} width="28" height=${h1} rx="6" fill="#059669"/><rect x=${x+32} y=${200-h2} width="28" height=${h2} rx="6" fill="#f59e0b"/><text x=${x+30} y="222" textAnchor="middle" fontSize="11" fill="#78716c" fontWeight="600">${d[0]}</text></g>`})}</svg>
+   ${hv!==null&&html`<div className="absolute top-0 right-2 pop bg-white border border-stone-200 shadow-xl rounded-xl p-3 text-xs"><div className="font-bold text-emerald-900 mb-1">${data[hv][0]} 2026</div><div className="text-emerald-700">Masuk: ${rp(data[hv][1]*1e6)}</div><div className="text-amber-600">Keluar: ${rp(data[hv][2]*1e6)}</div><div className="text-stone-500 mt-1">Selisih: ${rp((data[hv][1]-data[hv][2])*1e6)}</div></div>`}</div></div>
+
+ <div className="mt-4 rounded-3xl bg-white border border-stone-200 shadow-sm overflow-hidden">
+  <div className="p-4 md:p-5 flex flex-wrap gap-3 items-center justify-between border-b border-stone-100">
+   <div className="relative flex-1 min-w-[200px]"><span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400"><${Ic} n="search" s=${18}/></span><input value=${q} onChange=${e=>setQ(e.target.value)} placeholder="Cari transaksi\u2026" className=${inp+' pl-11'}/></div>
+   <div className="flex gap-1 p-1 rounded-xl bg-stone-100">${[['all','Semua'],['in','Pemasukan'],['out','Pengeluaran']].map(([k,l])=>html`<button key=${k} onClick=${()=>setF(k)} className=${'px-3.5 py-2 rounded-lg text-xs font-bold transition '+(f===k?'bg-white text-emerald-800 shadow':'text-stone-500')}>${l}</button>`)}</div></div>
+  <div className="divide-y divide-stone-100">${rows.length===0&&html`<div className="p-10 text-center text-stone-400 text-sm">Tidak ada transaksi ditemukan.</div>`}
+   ${rows.map(x=>html`<div key=${x.id} className="flex items-center gap-3 px-4 md:px-5 py-4 hover:bg-stone-50 transition"><div className=${'w-10 h-10 shrink-0 rounded-xl grid place-items-center '+(x.t==='in'?'bg-emerald-100 text-emerald-700':'bg-rose-100 text-rose-600')}><${Ic} n=${x.t==='in'?'up':'down'} s=${18}/></div>
+    <div className="flex-1 min-w-0"><div className="font-semibold text-sm truncate">${x.n}</div><div className="flex flex-wrap items-center gap-2 mt-1"><span className=${'text-[11px] font-bold px-2 py-0.5 rounded-full '+CAT[x.c]}>${x.c}</span><span className="text-xs text-stone-400">${new Date(x.d).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}</span></div></div>
+    <div className=${'font-bold text-sm whitespace-nowrap '+(x.t==='in'?'text-emerald-600':'text-rose-600')}>${x.t==='in'?'+':'\u2212'} ${rp(x.a)}</div></div>`)}</div></div>
+
+ ${open&&html`<${Modal} onClose=${()=>setOpen(false)}><h3 className="serif text-2xl text-emerald-900">Tambah Transaksi</h3><p className="text-sm text-stone-500 mt-1 mb-5">Simulasi input pengurus. Data tersimpan di peramban ini.</p>
+  <div className="space-y-4"><div className="grid grid-cols-2 gap-2">${[['in','Pemasukan'],['out','Pengeluaran']].map(([k,l])=>html`<button key=${k} onClick=${()=>setForm({...form,t:k})} className=${'py-3 rounded-xl text-sm font-bold border transition '+(form.t===k?(k==='in'?'bg-emerald-700 text-white border-emerald-700':'bg-rose-600 text-white border-rose-600'):'bg-white text-stone-500 border-stone-200')}>${l}</button>`)}</div>
+   <select value=${form.c} onChange=${e=>setForm({...form,c:e.target.value})} className=${inp}>${Object.keys(CAT).map(c=>html`<option key=${c}>${c}</option>`)}</select>
+   <input value=${form.n} onChange=${e=>setForm({...form,n:e.target.value})} placeholder="Keterangan (mis. Infaq Jumat 27 Nov)" className=${inp}/>
+   <input value=${form.a} inputMode="numeric" onChange=${e=>setForm({...form,a:e.target.value.replace(/\D/g,'')})} placeholder="Nominal (Rp)" className=${inp}/>
+   ${form.a&&html`<div className="text-xs text-emerald-700 font-semibold">${rp(+form.a)}</div>`}
+   <button onClick=${submit} className="w-full py-3.5 rounded-2xl bg-emerald-800 text-white font-bold hover:bg-emerald-900 transition">Simpan Transaksi</button></div><//>`}
+ </section>`}
+
+function Kajian({setModal}){
+ const[cat,setCat]=useState('Semua');const list=KAJ.filter(k=>cat==='Semua'||k.k===cat);
+ return html`<section id="kajian" className="max-w-6xl mx-auto px-4 pt-20 md:pt-28"><${Head} k="Majelis Ilmu" t="Jadwal Kajian" d="Mari hadiri majelis ilmu bersama para asatidz pilihan."/>
+ <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-4 px-4">${['Semua','Fiqih','Akidah','Muamalah','Keluarga'].map(c=>html`<button key=${c} onClick=${()=>setCat(c)} className=${'shrink-0 px-5 py-2.5 rounded-full text-sm font-bold transition '+(cat===c?'bg-emerald-800 text-white shadow-lg':'bg-white border border-stone-200 text-stone-500 hover:border-emerald-300')}>${c==='Keluarga'?'Keluarga/Parenting':c}</button>`)}</div>
+ <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">${list.map(k=>html`<article key=${k.id} className="rounded-3xl bg-white border border-stone-200 shadow-sm overflow-hidden hover:-translate-y-1 hover:shadow-xl transition flex flex-col">
+  <div className=${'relative p-5 text-white bg-gradient-to-br '+k.g}><div className="absolute inset-0 pat opacity-[.07]"></div>
+   <div className="relative flex justify-between items-start"><div className="bg-white/95 text-emerald-900 rounded-2xl px-3.5 py-2 text-center leading-none"><div className="text-[10px] font-bold text-amber-600">${k.day.toUpperCase()}</div><div className="serif text-2xl mt-1">${k.dt}</div><div className="text-[10px] font-semibold text-stone-500">${k.mo}</div></div>
+   <span className="flex items-center gap-1.5 text-[11px] font-bold bg-white/20 backdrop-blur px-3 py-1.5 rounded-full">${k.s==='Mendatang'&&html`<span className="relative flex w-2 h-2"><span className="animate-ping absolute inline-flex w-full h-full rounded-full bg-amber-300 opacity-75"></span><span className="relative inline-flex w-2 h-2 rounded-full bg-amber-300"></span></span>`}${k.s}</span></div></div>
+  <div className="p-5 flex-1 flex flex-col"><div className="text-[11px] font-bold tracking-widest text-amber-600">${k.k.toUpperCase()}</div><h3 className="font-bold text-lg text-emerald-950 mt-1 leading-snug">${k.t}</h3>
+   <div className="flex items-center gap-3 mt-4"><div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 font-bold grid place-items-center text-sm">${k.u.replace(/Ustadz(ah)?\s/,'').split(' ').slice(0,2).map(w=>w[0]).join('')}</div><div className="text-sm font-semibold text-stone-700">${k.u}</div></div>
+   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-stone-500 mt-4"><span className="flex items-center gap-1"><${Ic} n="clock" s=${14}/>${k.time}</span><span className="flex items-center gap-1"><${Ic} n="pin" s=${14}/>${k.loc}</span></div>
+   <button onClick=${()=>setModal({type:'kajian',k})} className="mt-5 w-full py-3 rounded-xl bg-emerald-50 text-emerald-800 font-bold text-sm hover:bg-emerald-800 hover:text-white transition">Detail & Pengingat</button></div></article>`)}</div></section>`}
+
+function Programs({setModal}){
+ return html`<section id="program" className="max-w-6xl mx-auto px-4 pt-20 md:pt-28"><${Head} k="Program Unggulan" t="Berbagi Manfaat untuk Umat" d="Bersama jamaah, kami hadirkan program yang nyata dampaknya."/>
+ <div className="grid md:grid-cols-4 gap-5">${PROG.map(p=>html`<div key=${p.id} className=${'rounded-3xl bg-white border border-stone-200 p-6 shadow-sm hover:-translate-y-1 hover:shadow-xl transition flex flex-col '+(p.span||'md:col-span-1')} style=${p.span?{}:{}}>
+  <div className=${'w-14 h-14 rounded-2xl grid place-items-center '+p.c}><${Ic} n=${p.i} s=${26}/></div><h3 className="font-bold text-lg text-emerald-950 mt-4">${p.t}</h3><p className="text-sm text-stone-500 mt-2 leading-relaxed flex-1">${p.d}</p>
+  <div className="mt-4 text-sm font-bold text-emerald-800">${p.st}</div>${p.j&&html`<div className="text-xs text-stone-400 mt-0.5">${p.j}</div>`}
+  ${p.prog&&html`<div className="mt-3"><div className="h-2.5 rounded-full bg-stone-100 overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-amber-400" style=${{width:(p.prog[0]/p.prog[1]*100)+'%'}}></div></div><div className="text-xs text-stone-500 mt-1.5">Terkumpul ${p.prog[0]} dari ${p.prog[1]} juta</div></div>`}
+  <button onClick=${()=>setModal({type:'infaq',p})} className="mt-5 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-emerald-950 font-bold text-sm hover:shadow-lg transition">Infaq Program</button></div>`)}</div></section>`}
+
+function Qris(){
+ const cells=useMemo(()=>{let s=7;const r=()=>(s=(s*9301+49297)%233280)/233280;const a=[];for(let y=0;y<25;y++)for(let x=0;x<25;x++){const f=(x<8&&y<8)||(x>16&&y<8)||(x<8&&y>16);if(!f&&r()>.52)a.push([x,y])}return a},[]);
+ const fd=(x,y)=>html`<g key=${x+'-'+y}><rect x=${x} y=${y} width="7" height="7" fill="#064e3b"/><rect x=${x+1} y=${y+1} width="5" height="5" fill="#fff"/><rect x=${x+2} y=${y+2} width="3" height="3" fill="#064e3b"/></g>`;
+ return html`<svg viewBox="-1 -1 27 27" className="w-44 h-44 mx-auto">${cells.map(([x,y])=>html`<rect key=${x+','+y} x=${x} y=${y} width="1" height="1" fill="#064e3b"/>`)}${fd(0,0)}${fd(18,0)}${fd(0,18)}</svg>`}
+function Infaq({p,close,show}){
+ const no='7712 3456 7890';
+ const copy=()=>{const done=()=>show('Nomor rekening berhasil disalin');try{navigator.clipboard.writeText(no.replace(/ /g,'')).then(done,()=>{fb();done()})}catch(e){fb();done()}};
+ const fb=()=>{const t=document.createElement('textarea');t.value=no.replace(/ /g,'');document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(t)};
+ return html`<${Modal} onClose=${close} w="max-w-md"><div className="text-xs font-bold tracking-widest text-amber-600">INFAQ PROGRAM</div><h3 className="serif text-2xl text-emerald-900 mt-1">${p.t}</h3>
+ <div className="mt-5 p-5 rounded-2xl bg-emerald-50 border border-emerald-100"><${Qris}/><div className="text-center text-xs text-stone-500 mt-2">Simulasi QRIS \u00b7 DKM Masjid Jami Darussalam</div></div>
+ <div className="mt-4 p-4 rounded-2xl border border-stone-200"><div className="text-xs text-stone-500">Bank Syariah Indonesia (BSI) \u00b7 a.n. DKM Masjid Jami Darussalam</div><div className="flex items-center justify-between mt-1"><div className="text-xl font-bold tabular-nums text-emerald-900">${no}</div></div></div>
+ <button onClick=${copy} className="mt-4 w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-emerald-800 text-white font-bold hover:bg-emerald-900 transition"><${Ic} n="copy" s=${18}/>Salin Nomor Rekening</button>
+ <p className="text-xs text-stone-400 text-center mt-3">Jazakumullahu khairan atas kebaikan Anda. Data ini hanya contoh demonstrasi.</p><//>`}
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${App}/>`);
+</script>
+</body>
+</html>
