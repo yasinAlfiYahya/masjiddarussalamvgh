@@ -61,6 +61,7 @@ const PROG=[
 {id:4,t:'Ambulans & Layanan Jenazah',i:'amb',c:'bg-sky-100 text-sky-700',d:'Layanan gratis untuk warga: ambulans, pemandian, pengkafanan, dan sholat jenazah.',st:'Siaga 24 jam',j:'Hubungi pengurus DKM',span:''},
 {id:5,t:'ZISWAF & Pembangunan',i:'bldg',c:'bg-violet-100 text-violet-700',d:'Zakat, infaq, sedekah, dan wakaf untuk pembangunan serambi dan perluasan area sholat.',prog:[112,200],st:'Renovasi Serambi',span:'md:col-span-2'}];
 
+function usePersist(k,init){const[v,s]=useState(()=>{try{const x=localStorage.getItem(k);return x?JSON.parse(x):init}catch(e){return init}});useEffect(()=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},[v]);return[v,s]}
 function useToast(){const[t,s]=useState(null);const show=m=>{s(m);clearTimeout(window.__t);window.__t=setTimeout(()=>s(null),2600)};return[t,show]}
 function Modal({onClose,children,w='max-w-lg'}){
  return html`<div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4" onClick=${onClose}>
@@ -73,7 +74,7 @@ function App(){
  const[times,setTimes]=useState(FALL);const[online,setOnline]=useState(false);
  const[now,setNow]=useState(wib());
  const[tx,setTx]=useState(()=>{try{const v=localStorage.getItem('mjd-tx');return v?JSON.parse(v):SEED}catch(e){return SEED}});
- const[toast,show]=useToast();const[menu,setMenu]=useState(false);const[active,setActive]=useState('beranda');
+ const[toast,show]=useToast();const[kajian,setKajian]=usePersist('mjd-kajian',KAJ);const[progs,setProgs]=usePersist('mjd-prog',PROG);const[role,setRole]=useState('jamaah');const[authed,setAuthed]=useState(false);const[menu,setMenu]=useState(false);const[active,setActive]=useState('beranda');
  const[modal,setModal]=useState(null);
  useEffect(()=>{const i=setInterval(()=>setNow(wib()),1000);return()=>clearInterval(i)},[]);
  useEffect(()=>{fetch('https://api.aladhan.com/v1/timingsByCity?city=Jakarta&country=Indonesia&method=20').then(r=>r.json()).then(j=>{const t=j.data.timings;const c=x=>x.slice(0,5);setTimes({Imsak:c(t.Imsak),Subuh:c(t.Fajr),Terbit:c(t.Sunrise),Dzuhur:c(t.Dhuhr),Ashar:c(t.Asr),Maghrib:c(t.Maghrib),Isya:c(t.Isha)});setOnline(true)}).catch(()=>{})},[]);
@@ -92,8 +93,8 @@ function App(){
  const saldo=48500000+tx.reduce((s,x)=>s+(x.t==='in'?x.a:-x.a),0);
  const mon=tx.filter(x=>x.d.startsWith('2026-11'));
  const inM=mon.filter(x=>x.t==='in').reduce((s,x)=>s+x.a,0),outM=mon.filter(x=>x.t==='out').reduce((s,x)=>s+x.a,0);
- const nk=KAJ.find(k=>k.s==='Mendatang');
- const go=id=>{setMenu(false);document.getElementById(id).scrollIntoView({behavior:'smooth'})};
+ const nk=kajian.find(k=>k.s==='Mendatang')||kajian[0]||{t:'Belum ada jadwal',day:'',dt:'',mo:'',time:''};
+ const go=id=>{setMenu(false);setRole('jamaah');setTimeout(()=>document.getElementById(id).scrollIntoView({behavior:'smooth'}),60)};
  const nav=[['beranda','Beranda'],['jadwal','Jadwal Sholat'],['keuangan','Keuangan'],['kajian','Kajian'],['program','Program']];
 
  return html`<div>
@@ -101,13 +102,15 @@ function App(){
   <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
    <button onClick=${()=>go('beranda')} className="flex items-center gap-2.5"><span className="w-9 h-9 rounded-xl bg-emerald-800 text-amber-400 grid place-items-center ar text-xl">\u0645</span><span className="serif text-emerald-900 text-lg leading-none text-left">Darussalam<span className="block text-[10px] font-sans tracking-widest text-stone-500 font-semibold">MASJID JAMI</span></span></button>
    <nav className="hidden md:flex gap-1">${nav.map(([id,l])=>html`<button key=${id} onClick=${()=>go(id)} className=${'relative px-4 py-2 text-sm font-semibold rounded-full transition '+(active===id?'text-emerald-800 bg-emerald-50':'text-stone-500 hover:text-emerald-800')}>${l}${active===id&&html`<span className="absolute left-1/2 -translate-x-1/2 bottom-0.5 w-4 h-0.5 rounded bg-amber-500"></span>`}</button>`)}</nav>
-   <button className="md:hidden p-2 rounded-xl hover:bg-stone-100" onClick=${()=>setMenu(true)} aria-label="Menu"><${Ic} n="menu"/></button>
+   <div className="flex items-center gap-2"><button onClick=${()=>{role==='admin'?setRole('jamaah'):authed?setRole('admin'):setModal({type:'login'});window.scrollTo(0,0)}} className=${'px-4 py-2 rounded-full text-xs font-bold border transition '+(role==='admin'?'bg-amber-400 border-amber-400 text-emerald-950':'border-emerald-800 text-emerald-800 hover:bg-emerald-800 hover:text-white')}>${role==='admin'?'Tampilan Jamaah':'Masuk Admin'}</button><button className="md:hidden p-2 rounded-xl hover:bg-stone-100" onClick=${()=>setMenu(true)} aria-label="Menu"><${Ic} n="menu"/></button></div>
   </div></header>
  ${menu&&html`<div className="fixed inset-0 z-[70] md:hidden" onClick=${()=>setMenu(false)}><div className="absolute inset-0 bg-emerald-950/60 backdrop-blur-sm"></div>
   <div className="pop absolute right-0 top-0 bottom-0 w-72 bg-white p-6 shadow-2xl" onClick=${e=>e.stopPropagation()}>
   <div className="flex justify-between items-center mb-6"><span className="serif text-emerald-900 text-lg">Menu</span><button onClick=${()=>setMenu(false)}><${Ic} n="x"/></button></div>
   ${nav.map(([id,l])=>html`<button key=${id} onClick=${()=>go(id)} className=${'block w-full text-left px-4 py-3 rounded-xl font-semibold mb-1 '+(active===id?'bg-emerald-50 text-emerald-800':'text-stone-600')}>${l}</button>`)}</div></div>`}
 
+ ${role==='admin'&&html`<${Admin} tx=${tx} setTx=${setTx} kajian=${kajian} setKajian=${setKajian} progs=${progs} setProgs=${setProgs} saldo=${saldo} show=${show}/>`}
+ <div className=${role==='admin'?'hidden':''}>
  <section id="beranda" className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-900 text-white">
   <div className="absolute inset-0 pat opacity-[.05]"></div>
   <div className="absolute -top-32 -right-24 w-[34rem] h-[34rem] rounded-full bg-amber-400/20 blur-3xl"></div>
@@ -147,8 +150,8 @@ function App(){
   </div></section>
 
  <${Finance} tx=${tx} setTx=${setTx} saldo=${saldo} inM=${inM} outM=${outM} show=${show}/>
- <${Kajian} setModal=${setModal} show=${show}/>
- <${Programs} setModal=${setModal}/>
+ <${Kajian} setModal=${setModal} items=${kajian}/>
+ <${Programs} setModal=${setModal} items=${progs}/></div>
 
  <footer className="mt-24 relative bg-emerald-950 text-emerald-100 overflow-hidden"><div className="absolute inset-0 pat opacity-[.04]"></div>
   <div className="relative max-w-6xl mx-auto px-4 py-14 grid md:grid-cols-3 gap-10">
@@ -159,13 +162,63 @@ function App(){
   <button onClick=${()=>window.scrollTo({top:0,behavior:'smooth'})} aria-label="Ke atas" className="absolute right-5 top-5 w-11 h-11 rounded-full bg-amber-400 text-emerald-950 grid place-items-center hover:-translate-y-1 transition shadow-lg"><${Ic} n="up" s=${20}/></button></footer>
 
  ${modal&&modal.type==='kajian'&&html`<${Modal} onClose=${()=>setModal(null)}><div className=${'-mx-6 -mt-6 mb-5 p-6 pt-8 rounded-t-3xl text-white bg-gradient-to-br '+modal.k.g}><div className="text-xs font-bold tracking-widest opacity-80">${modal.k.k.toUpperCase()}</div><h3 className="serif text-2xl mt-1 pr-8">${modal.k.t}</h3></div>
-  <p className="text-stone-600 leading-relaxed">${modal.k.d}</p>
+  ${modal.k.img&&html`<img src=${modal.k.img} alt="Poster kajian" className="w-full rounded-2xl mb-4 shadow-md"/>`}<p className="text-stone-600 leading-relaxed">${modal.k.d}</p>
   <div className="mt-5 space-y-2 text-sm">${[['users',modal.k.u],['cal',modal.k.day+', '+modal.k.dt+' '+modal.k.mo+' 2026'],['clock',modal.k.time],['pin',modal.k.loc+' \u2013 Masjid Jami Darussalam']].map(([i,v])=>html`<div key=${v} className="flex gap-3 items-center"><span className="text-emerald-700"><${Ic} n=${i} s=${18}/></span>${v}</div>`)}</div>
   <button onClick=${()=>{setModal(null);show('Pengingat diaktifkan untuk '+modal.k.t)}} className="mt-6 w-full py-3.5 rounded-2xl bg-emerald-800 text-white font-bold hover:bg-emerald-900 transition">Ingatkan Saya</button><//>`}
  ${modal&&modal.type==='infaq'&&html`<${Infaq} p=${modal.p} close=${()=>setModal(null)} show=${show}/>`}
+ ${modal&&modal.type==='login'&&html`<${Login} close=${()=>setModal(null)} ok=${()=>{setAuthed(true);setRole('admin');setModal(null);window.scrollTo(0,0);show('Berhasil masuk sebagai admin')}}/>`}
  ${toast&&html`<div className="pop fixed z-[80] bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 px-5 py-3 rounded-2xl bg-emerald-900 text-white shadow-2xl text-sm font-semibold" style=${{marginBottom:'env(safe-area-inset-bottom,0px)'}}><span className="text-amber-400"><${Ic} n="check" s=${18}/></span>${toast}</div>`}
  </div>`}
 
+const GR={Fiqih:'from-emerald-700 to-emerald-900',Akidah:'from-teal-700 to-teal-900',Keluarga:'from-amber-600 to-amber-800',Muamalah:'from-sky-700 to-sky-900'};
+const CI={book:'bg-emerald-100 text-emerald-700',heart:'bg-amber-100 text-amber-700',users:'bg-rose-100 text-rose-700',amb:'bg-sky-100 text-sky-700',bldg:'bg-violet-100 text-violet-700',wallet:'bg-teal-100 text-teal-700'};
+const IN={book:'Pendidikan',heart:'Berbagi',users:'Sosial',amb:'Layanan',bldg:'Pembangunan',wallet:'Dana'};
+const MO=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const rd=f=>new Promise(res=>{const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const s=Math.min(1,800/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*s;c.height=i.height*s;c.getContext('2d').drawImage(i,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.75))};i.src=r.result};r.readAsDataURL(f)});
+const ip='w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm';
+const bt='w-full py-3.5 rounded-2xl bg-emerald-800 text-white font-bold hover:bg-emerald-900 transition';
+const Fld=({l,children})=>html`<label className="block"><span className="text-xs font-bold text-stone-500">${l}</span><div className="mt-1.5">${children}</div></label>`;
+const Box=({t,children})=>html`<div className="rounded-3xl bg-white border border-stone-200 shadow-sm p-5 md:p-6"><h3 className="font-bold text-emerald-900 mb-4">${t}</h3><div className="space-y-4">${children}</div></div>`;
+const Act=({edit,del})=>html`<div className="flex gap-1 shrink-0">${edit&&html`<button onClick=${edit} className="px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-800 text-xs font-bold hover:bg-emerald-100">Edit</button>`}<button onClick=${del} className="px-3 py-1.5 rounded-lg bg-rose-50 text-rose-600 text-xs font-bold hover:bg-rose-100">Hapus</button></div>`;
+function Login({close,ok}){const[v,setV]=useState('');const[er,setEr]=useState(false);const go=()=>v==='1234'?ok():setEr(true);
+ return html`<${Modal} onClose=${close} w="max-w-sm"><h3 className="serif text-2xl text-emerald-900">Masuk Admin</h3><p className="text-sm text-stone-500 mt-1 mb-5">Khusus pengurus DKM. Untuk demo, PIN: 1234</p><input type="password" inputMode="numeric" value=${v} onChange=${e=>{setV(e.target.value);setEr(false)}} onKeyDown=${e=>e.key==='Enter'&&go()} placeholder="Masukkan PIN" className=${ip}/>${er&&html`<div className="text-xs text-rose-600 font-semibold mt-2">PIN salah, silakan coba lagi.</div>`}<button onClick=${go} className=${bt+' mt-4'}>Masuk</button><//>`}
+function Admin({tx,setTx,kajian,setKajian,progs,setProgs,saldo,show}){
+ const[tab,setTab]=useState('keu');const today=new Date().toISOString().slice(0,10);
+ const E1={t:'in',c:'Infaq Jumat',n:'',a:'',d:today},E2={k:'Fiqih',t:'',u:'',date:'',time:'',loc:'Ruang Utama',s:'Mendatang',d:'',img:''},E3={t:'',d:'',i:'book',st:'',j:'',got:'',goal:''};
+ const[f1,setF1]=useState(E1),[f2,setF2]=useState(E2),[f3,setF3]=useState(E3),[e2,setE2]=useState(null),[e3,setE3]=useState(null);
+ const on=(f,set,k)=>e=>set({...f,[k]:e.target.value});
+ const saveTx=()=>{const a=parseInt(f1.a);if(!a||!f1.n.trim())return show('Lengkapi keterangan dan nominal');setTx([...tx,{id:Date.now(),d:f1.d||today,t:f1.t,c:f1.c,n:f1.n.trim(),a}]);setF1(E1);show('Transaksi berhasil ditambahkan')};
+ const saveK=()=>{if(!f2.t.trim()||!f2.date)return show('Nama kajian dan tanggal wajib diisi');const dt=new Date(f2.date+'T00:00');const o={...f2,id:e2||Date.now(),t:f2.t.trim(),u:f2.u.trim()||'Pemateri DKM',day:dt.toLocaleDateString('id-ID',{weekday:'long'}),dt:pad(dt.getDate()),mo:MO[dt.getMonth()],g:GR[f2.k]};setKajian(e2?kajian.map(x=>x.id===e2?o:x):[o,...kajian]);setF2(E2);setE2(null);show(e2?'Kajian diperbarui':'Kajian ditambahkan')};
+ const saveP=()=>{if(!f3.t.trim())return show('Nama program wajib diisi');const old=progs.find(x=>x.id===e3)||{};const goal=+f3.goal;const o={...old,id:e3||Date.now(),t:f3.t.trim(),d:f3.d,i:f3.i,c:CI[f3.i],st:f3.st,j:f3.j,prog:goal>0?[+f3.got||0,goal]:undefined};setProgs(e3?progs.map(x=>x.id===e3?o:x):[...progs,o]);setF3(E3);setE3(null);show(e3?'Program diperbarui':'Program ditambahkan')};
+ const top=()=>window.scrollTo({top:0,behavior:'smooth'});
+ const rows=[...tx].sort((a,b)=>b.d.localeCompare(a.d)||b.id-a.id).slice(0,8);
+ return html`<main className="max-w-6xl mx-auto px-4 py-10 min-h-screen rise">
+ <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-900 to-emerald-950 text-white p-7 shadow-xl"><div className="absolute inset-0 pat opacity-[.06]"></div><div className="relative"><div className="text-xs font-bold tracking-widest text-amber-400">PANEL ADMIN DKM</div><h1 className="serif text-3xl mt-1">Kelola Masjid Jami Darussalam</h1><p className="text-emerald-200 text-sm mt-1">Saldo kas saat ini ${rp(saldo)}. Perubahan langsung tampil di halaman jamaah.</p></div></div>
+ <div className="flex gap-2 mt-5 mb-5 overflow-x-auto">${[['keu','Keuangan','wallet'],['kajian','Jadwal Kajian','cal'],['prog','Program Unggulan','heart']].map(([k,l,i])=>html`<button key=${k} onClick=${()=>setTab(k)} className=${'shrink-0 flex items-center gap-2 px-5 py-3 rounded-full text-sm font-bold transition '+(tab===k?'bg-emerald-800 text-white shadow-lg':'bg-white border border-stone-200 text-stone-500')}><${Ic} n=${i} s=${16}/>${l}</button>`)}</div>
+ <div className="grid lg:grid-cols-2 gap-5 items-start">
+ ${tab==='keu'&&html`<${Box} t="Catat Pemasukan / Pengeluaran"><div className="grid grid-cols-2 gap-2">${[['in','Pemasukan'],['out','Pengeluaran']].map(([k,l])=>html`<button key=${k} onClick=${()=>setF1({...f1,t:k})} className=${'py-3 rounded-xl text-sm font-bold border transition '+(f1.t===k?(k==='in'?'bg-emerald-700 text-white border-emerald-700':'bg-rose-600 text-white border-rose-600'):'bg-white text-stone-500 border-stone-200')}>${l}</button>`)}</div>
+ <${Fld} l="Kategori"><select value=${f1.c} onChange=${on(f1,setF1,'c')} className=${ip}>${Object.keys(CAT).map(c=>html`<option key=${c}>${c}</option>`)}</select><//>
+ <${Fld} l="Keterangan"><input value=${f1.n} onChange=${on(f1,setF1,'n')} placeholder="mis. Infaq Jumat 27 Nov" className=${ip}/><//>
+ <div className="grid grid-cols-2 gap-3"><${Fld} l="Tanggal"><input type="date" value=${f1.d} onChange=${on(f1,setF1,'d')} className=${ip}/><//><${Fld} l="Nominal (Rp)"><input inputMode="numeric" value=${f1.a} onChange=${e=>setF1({...f1,a:e.target.value.replace(/\D/g,'')})} placeholder="0" className=${ip}/><//></div>${f1.a&&html`<div className="text-xs text-emerald-700 font-semibold">${rp(+f1.a)}</div>`}
+ <button onClick=${saveTx} className=${bt}>Simpan Transaksi</button><//>
+ <${Box} t="Transaksi Terakhir"><div className="divide-y divide-stone-100 -my-2">${rows.map(x=>html`<div key=${x.id} className="flex items-center gap-3 py-3"><div className="flex-1 min-w-0"><div className="text-sm font-semibold truncate">${x.n}</div><div className="text-xs text-stone-400">${x.c} \u00b7 ${x.d}</div></div><div className=${'text-sm font-bold whitespace-nowrap '+(x.t==='in'?'text-emerald-600':'text-rose-600')}>${x.t==='in'?'+':'\u2212'} ${rp(x.a)}</div><${Act} del=${()=>{setTx(tx.filter(y=>y.id!==x.id));show('Transaksi dihapus')}}/></div>`)}</div><//>`}
+ ${tab==='kajian'&&html`<${Box} t=${e2?'Edit Kajian':'Tambah Kajian Baru'}><div className="grid grid-cols-2 gap-3"><${Fld} l="Jenis Kajian"><select value=${f2.k} onChange=${on(f2,setF2,'k')} className=${ip}>${Object.keys(GR).map(c=>html`<option key=${c}>${c}</option>`)}</select><//><${Fld} l="Status"><select value=${f2.s} onChange=${on(f2,setF2,'s')} className=${ip}><option>Mendatang</option><option>Rutin Mingguan</option></select><//></div>
+ <${Fld} l="Nama Kajian"><input value=${f2.t} onChange=${on(f2,setF2,'t')} placeholder="mis. Fiqih Sholat Lengkap" className=${ip}/><//>
+ <${Fld} l="Pemateri"><input value=${f2.u} onChange=${on(f2,setF2,'u')} placeholder="mis. Ustadz Ahmad, Lc." className=${ip}/><//>
+ <div className="grid grid-cols-2 gap-3"><${Fld} l="Tanggal"><input type="date" value=${f2.date} onChange=${on(f2,setF2,'date')} className=${ip}/><//><${Fld} l="Jam / Waktu"><input value=${f2.time} onChange=${on(f2,setF2,'time')} placeholder="Ba\u2019da Maghrib" className=${ip}/><//></div>
+ <${Fld} l="Lokasi"><select value=${f2.loc} onChange=${on(f2,setF2,'loc')} className=${ip}><option>Ruang Utama</option><option>Aula Masjid</option><option>Serambi Masjid</option></select><//>
+ <${Fld} l="Deskripsi"><textarea rows="3" value=${f2.d} onChange=${on(f2,setF2,'d')} className=${ip}></textarea><//>
+ <${Fld} l="Poster (gambar)">${f2.img?html`<div className="relative w-40"><img src=${f2.img} alt="Pratinjau poster" className="w-40 rounded-xl shadow"/><button onClick=${()=>setF2({...f2,img:''})} className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-rose-600 text-white grid place-items-center"><${Ic} n="x" s=${14}/></button></div>`:html`<input type="file" accept="image/*" onChange=${async e=>{const x=e.target.files[0];if(x)setF2({...f2,img:await rd(x)})}} className="text-sm file:mr-3 file:px-4 file:py-2 file:rounded-xl file:border-0 file:bg-emerald-50 file:text-emerald-800 file:font-bold"/>`}<//>
+ <button onClick=${saveK} className=${bt}>${e2?'Simpan Perubahan':'Tambah Kajian'}</button>${e2&&html`<button onClick=${()=>{setF2(E2);setE2(null)}} className="w-full text-sm text-stone-500">Batal edit</button>`}<//>
+ <${Box} t=${'Daftar Kajian ('+kajian.length+')'}><div className="divide-y divide-stone-100 -my-2">${kajian.map(k=>html`<div key=${k.id} className="flex items-center gap-3 py-3"><div className=${'w-12 h-16 shrink-0 rounded-lg overflow-hidden bg-gradient-to-br '+k.g}>${k.img&&html`<img src=${k.img} alt="" className="w-full h-full object-cover"/>`}</div><div className="flex-1 min-w-0"><div className="text-sm font-semibold truncate">${k.t}</div><div className="text-xs text-stone-400">${k.k} \u00b7 ${k.day}, ${k.dt} ${k.mo}</div></div><${Act} edit=${()=>{setF2({k:k.k,t:k.t,u:k.u,date:k.date||'',time:k.time,loc:k.loc,s:k.s,d:k.d,img:k.img||''});setE2(k.id);top()}} del=${()=>{setKajian(kajian.filter(y=>y.id!==k.id));show('Kajian dihapus')}}/></div>`)}</div><//>`}
+ ${tab==='prog'&&html`<${Box} t=${e3?'Edit Program':'Tambah Program Baru'}><${Fld} l="Nama Program"><input value=${f3.t} onChange=${on(f3,setF3,'t')} className=${ip}/><//>
+ <${Fld} l="Deskripsi"><textarea rows="3" value=${f3.d} onChange=${on(f3,setF3,'d')} className=${ip}></textarea><//>
+ <div className="grid grid-cols-2 gap-3"><${Fld} l="Ikon"><select value=${f3.i} onChange=${on(f3,setF3,'i')} className=${ip}>${Object.keys(CI).map(c=>html`<option key=${c} value=${c}>${IN[c]}</option>`)}</select><//><${Fld} l="Statistik Dampak"><input value=${f3.st} onChange=${on(f3,setF3,'st')} placeholder="120+ Santri Aktif" className=${ip}/><//></div>
+ <${Fld} l="Jadwal (opsional)"><input value=${f3.j} onChange=${on(f3,setF3,'j')} placeholder="Setiap Jumat" className=${ip}/><//>
+ <div className="grid grid-cols-2 gap-3"><${Fld} l="Terkumpul (juta Rp)"><input inputMode="numeric" value=${f3.got} onChange=${on(f3,setF3,'got')} className=${ip}/><//><${Fld} l="Target (juta Rp)"><input inputMode="numeric" value=${f3.goal} onChange=${on(f3,setF3,'goal')} className=${ip}/><//></div>
+ <button onClick=${saveP} className=${bt}>${e3?'Simpan Perubahan':'Tambah Program'}</button>${e3&&html`<button onClick=${()=>{setF3(E3);setE3(null)}} className="w-full text-sm text-stone-500">Batal edit</button>`}<//>
+ <${Box} t=${'Daftar Program ('+progs.length+')'}><div className="divide-y divide-stone-100 -my-2">${progs.map(p=>html`<div key=${p.id} className="flex items-center gap-3 py-3"><div className=${'w-10 h-10 shrink-0 rounded-xl grid place-items-center '+p.c}><${Ic} n=${p.i} s=${18}/></div><div className="flex-1 min-w-0"><div className="text-sm font-semibold truncate">${p.t}</div><div className="text-xs text-stone-400 truncate">${p.st}</div></div><${Act} edit=${()=>{setF3({t:p.t,d:p.d,i:p.i,st:p.st||'',j:p.j||'',got:p.prog?p.prog[0]:'',goal:p.prog?p.prog[1]:''});setE3(p.id);top()}} del=${()=>{setProgs(progs.filter(y=>y.id!==p.id));show('Program dihapus')}}/></div>`)}</div><//>`}
+ </div></main>`}
 function Finance({tx,setTx,saldo,inM,outM,show}){
  const[q,setQ]=useState('');const[f,setF]=useState('all');const[open,setOpen]=useState(false);const[hv,setHv]=useState(null);
  const[form,setForm]=useState({t:'in',c:'Infaq Jumat',n:'',a:''});
@@ -177,7 +230,7 @@ function Finance({tx,setTx,saldo,inM,outM,show}){
  const inp='w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm';
  return html`<section id="keuangan" className="max-w-6xl mx-auto px-4 pt-20 md:pt-28">
  <div className="flex flex-wrap items-end justify-between gap-4"><${Head} k="Transparansi Keuangan" t="Laporan Kas Masjid" d="Setiap rupiah amanah jamaah kami catat secara terbuka."/>
-  <button onClick=${()=>setOpen(true)} className="mb-8 md:mb-10 flex items-center gap-2 px-5 py-3 rounded-2xl bg-emerald-800 text-white font-semibold hover:bg-emerald-900 hover:-translate-y-0.5 transition shadow-lg"><${Ic} n="plus" s=${18}/>Simulasi Input Admin</button></div>
+  </div>
  <div className="grid md:grid-cols-5 gap-4">
   <div className="md:col-span-3 relative overflow-hidden rounded-3xl p-7 bg-gradient-to-br from-emerald-800 to-emerald-950 text-white shadow-xl"><div className="absolute inset-0 pat opacity-[.06]"></div><div className="absolute -right-10 -bottom-10 w-48 h-48 rounded-full bg-amber-400/20 blur-2xl"></div>
    <div className="relative"><div className="text-emerald-200 text-sm flex items-center gap-2"><${Ic} n="wallet" s=${18}/>Total Saldo Kas</div><div className="serif text-4xl md:text-5xl mt-3">${rp(saldo)}</div><div className="mt-4 inline-block text-xs px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 font-semibold">Update langsung saat transaksi dicatat</div></div></div>
@@ -209,22 +262,23 @@ function Finance({tx,setTx,saldo,inM,outM,show}){
    <button onClick=${submit} className="w-full py-3.5 rounded-2xl bg-emerald-800 text-white font-bold hover:bg-emerald-900 transition">Simpan Transaksi</button></div><//>`}
  </section>`}
 
-function Kajian({setModal}){
- const[cat,setCat]=useState('Semua');const list=KAJ.filter(k=>cat==='Semua'||k.k===cat);
+function Kajian({setModal,items}){
+ const[cat,setCat]=useState('Semua');const list=items.filter(k=>cat==='Semua'||k.k===cat);
  return html`<section id="kajian" className="max-w-6xl mx-auto px-4 pt-20 md:pt-28"><${Head} k="Majelis Ilmu" t="Jadwal Kajian" d="Mari hadiri majelis ilmu bersama para asatidz pilihan."/>
  <div className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-4 px-4">${['Semua','Fiqih','Akidah','Muamalah','Keluarga'].map(c=>html`<button key=${c} onClick=${()=>setCat(c)} className=${'shrink-0 px-5 py-2.5 rounded-full text-sm font-bold transition '+(cat===c?'bg-emerald-800 text-white shadow-lg':'bg-white border border-stone-200 text-stone-500 hover:border-emerald-300')}>${c==='Keluarga'?'Keluarga/Parenting':c}</button>`)}</div>
  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">${list.map(k=>html`<article key=${k.id} className="rounded-3xl bg-white border border-stone-200 shadow-sm overflow-hidden hover:-translate-y-1 hover:shadow-xl transition flex flex-col">
   <div className=${'relative p-5 text-white bg-gradient-to-br '+k.g}><div className="absolute inset-0 pat opacity-[.07]"></div>
    <div className="relative flex justify-between items-start"><div className="bg-white/95 text-emerald-900 rounded-2xl px-3.5 py-2 text-center leading-none"><div className="text-[10px] font-bold text-amber-600">${k.day.toUpperCase()}</div><div className="serif text-2xl mt-1">${k.dt}</div><div className="text-[10px] font-semibold text-stone-500">${k.mo}</div></div>
    <span className="flex items-center gap-1.5 text-[11px] font-bold bg-white/20 backdrop-blur px-3 py-1.5 rounded-full">${k.s==='Mendatang'&&html`<span className="relative flex w-2 h-2"><span className="animate-ping absolute inline-flex w-full h-full rounded-full bg-amber-300 opacity-75"></span><span className="relative inline-flex w-2 h-2 rounded-full bg-amber-300"></span></span>`}${k.s}</span></div></div>
+  <button onClick=${()=>setModal({type:'kajian',k})} className="group relative block w-full aspect-[4/5] overflow-hidden bg-stone-100" aria-label=${'Lihat poster '+k.t}>${k.img?html`<img src=${k.img} alt=${'Poster '+k.t} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-500"/>`:html`<div className=${'absolute inset-0 grid place-items-center text-white bg-gradient-to-br '+k.g}><div className="absolute inset-0 pat opacity-[.08]"></div><div className="relative text-center px-6"><div className="ar text-4xl text-amber-300">\u0645</div><div className="serif text-lg mt-2">${k.t}</div><div className="text-xs mt-2 opacity-70">Poster segera hadir</div></div></div>`}</button>
   <div className="p-5 flex-1 flex flex-col"><div className="text-[11px] font-bold tracking-widest text-amber-600">${k.k.toUpperCase()}</div><h3 className="font-bold text-lg text-emerald-950 mt-1 leading-snug">${k.t}</h3>
    <div className="flex items-center gap-3 mt-4"><div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 font-bold grid place-items-center text-sm">${k.u.replace(/Ustadz(ah)?\s/,'').split(' ').slice(0,2).map(w=>w[0]).join('')}</div><div className="text-sm font-semibold text-stone-700">${k.u}</div></div>
    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-stone-500 mt-4"><span className="flex items-center gap-1"><${Ic} n="clock" s=${14}/>${k.time}</span><span className="flex items-center gap-1"><${Ic} n="pin" s=${14}/>${k.loc}</span></div>
    <button onClick=${()=>setModal({type:'kajian',k})} className="mt-5 w-full py-3 rounded-xl bg-emerald-50 text-emerald-800 font-bold text-sm hover:bg-emerald-800 hover:text-white transition">Detail & Pengingat</button></div></article>`)}</div></section>`}
 
-function Programs({setModal}){
+function Programs({setModal,items}){
  return html`<section id="program" className="max-w-6xl mx-auto px-4 pt-20 md:pt-28"><${Head} k="Program Unggulan" t="Berbagi Manfaat untuk Umat" d="Bersama jamaah, kami hadirkan program yang nyata dampaknya."/>
- <div className="grid md:grid-cols-4 gap-5">${PROG.map(p=>html`<div key=${p.id} className=${'rounded-3xl bg-white border border-stone-200 p-6 shadow-sm hover:-translate-y-1 hover:shadow-xl transition flex flex-col '+(p.span||'md:col-span-1')} style=${p.span?{}:{}}>
+ <div className="grid md:grid-cols-4 gap-5">${items.map(p=>html`<div key=${p.id} className=${'rounded-3xl bg-white border border-stone-200 p-6 shadow-sm hover:-translate-y-1 hover:shadow-xl transition flex flex-col '+(p.span||'md:col-span-1')} style=${p.span?{}:{}}>
   <div className=${'w-14 h-14 rounded-2xl grid place-items-center '+p.c}><${Ic} n=${p.i} s=${26}/></div><h3 className="font-bold text-lg text-emerald-950 mt-4">${p.t}</h3><p className="text-sm text-stone-500 mt-2 leading-relaxed flex-1">${p.d}</p>
   <div className="mt-4 text-sm font-bold text-emerald-800">${p.st}</div>${p.j&&html`<div className="text-xs text-stone-400 mt-0.5">${p.j}</div>`}
   ${p.prog&&html`<div className="mt-3"><div className="h-2.5 rounded-full bg-stone-100 overflow-hidden"><div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-amber-400" style=${{width:(p.prog[0]/p.prog[1]*100)+'%'}}></div></div><div className="text-xs text-stone-500 mt-1.5">Terkumpul ${p.prog[0]} dari ${p.prog[1]} juta</div></div>`}
